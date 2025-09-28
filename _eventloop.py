@@ -2,165 +2,419 @@ from __future__ import annotations
 
 import math
 import sys
-import threading
-from collections.abc import Awaitable, Callable, Generator
-from contextlib import contextmanager
-from importlib import import_module
-from typing import TYPE_CHECKING, Any, TypeVar
-
-import sniffio
+from abc import ABCMeta, abstractmethod
+from collections.abc import AsyncIterator, Awaitable, Callable, Sequence
+from contextlib import AbstractContextManager
+from os import PathLike
+from signal import Signals
+from socket import AddressFamily, SocketKind, socket
+from typing import (
+    IO,
+    TYPE_CHECKING,
+    Any,
+    TypeVar,
+    Union,
+    overload,
+)
 
 if sys.version_info >= (3, 11):
     from typing import TypeVarTuple, Unpack
 else:
     from typing_extensions import TypeVarTuple, Unpack
 
-if TYPE_CHECKING:
-    from ..abc import AsyncBackend
+if sys.version_info >= (3, 10):
+    from typing import TypeAlias
+else:
+    from typing_extensions import TypeAlias
 
-# This must be updated when new backends are introduced
-BACKENDS = "asyncio", "trio"
+if TYPE_CHECKING:
+    from _typeshed import FileDescriptorLike
+
+    from .._core._synchronization import CapacityLimiter, Event, Lock, Semaphore
+    from .._core._tasks import CancelScope
+    from .._core._testing import TaskInfo
+    from ..from_thread import BlockingPortal
+    from ._sockets import (
+        ConnectedUDPSocket,
+        ConnectedUNIXDatagramSocket,
+        IPSockAddrType,
+        SocketListener,
+        SocketStream,
+        UDPSocket,
+        UNIXDatagramSocket,
+        UNIXSocketStream,
+    )
+    from ._subprocesses import Process
+    from ._tasks import TaskGroup
+    from ._testing import TestRunner
 
 T_Retval = TypeVar("T_Retval")
 PosArgsT = TypeVarTuple("PosArgsT")
-
-threadlocals = threading.local()
-loaded_backends: dict[str, type[AsyncBackend]] = {}
+StrOrBytesPath: TypeAlias = Union[str, bytes, "PathLike[str]", "PathLike[bytes]"]
 
 
-def run(
-    func: Callable[[Unpack[PosArgsT]], Awaitable[T_Retval]],
-    *args: Unpack[PosArgsT],
-    backend: str = "asyncio",
-    backend_options: dict[str, Any] | None = None,
-) -> T_Retval:
-    """
-    Run the given coroutine function in an asynchronous event loop.
+class AsyncBackend(metaclass=ABCMeta):
+    @classmethod
+    @abstractmethod
+    def run(
+        cls,
+        func: Callable[[Unpack[PosArgsT]], Awaitable[T_Retval]],
+        args: tuple[Unpack[PosArgsT]],
+        kwargs: dict[str, Any],
+        options: dict[str, Any],
+    ) -> T_Retval:
+        """
+        Run the given coroutine function in an asynchronous event loop.
 
-    The current thread must not be already running an event loop.
+        The current thread must not be already running an event loop.
 
-    :param func: a coroutine function
-    :param args: positional arguments to ``func``
-    :param backend: name of the asynchronous event loop implementation – currently
-        either ``asyncio`` or ``trio``
-    :param backend_options: keyword arguments to call the backend ``run()``
-        implementation with (documented :ref:`here <backend options>`)
-    :return: the return value of the coroutine function
-    :raises RuntimeError: if an asynchronous event loop is already running in this
-        thread
-    :raises LookupError: if the named backend is not found
+        :param func: a coroutine function
+        :param args: positional arguments to ``func``
+        :param kwargs: positional arguments to ``func``
+        :param options: keyword arguments to call the backend ``run()`` implementation
+            with
+        :return: the return value of the coroutine function
+        """
 
-    """
-    try:
-        asynclib_name = sniffio.current_async_library()
-    except sniffio.AsyncLibraryNotFoundError:
+    @classmethod
+    @abstractmethod
+    def current_token(cls) -> object:
+        """
+        Return an object that allows other threads to run code inside the event loop.
+
+        :return: a token object, specific to the event loop running in the current
+            thread
+        """
+
+    @classmethod
+    @abstractmethod
+    def current_time(cls) -> float:
+        """
+        Return the current value of the event loop's internal clock.
+
+        :return: the clock value (seconds)
+        """
+
+    @classmethod
+    @abstractmethod
+    def cancelled_exception_class(cls) -> type[BaseException]:
+        """Return the exception class that is raised in a task if it's cancelled."""
+
+    @classmethod
+    @abstractmethod
+    async def checkpoint(cls) -> None:
+        """
+        Check if the task has been cancelled, and allow rescheduling of other tasks.
+
+        This is effectively the same as running :meth:`checkpoint_if_cancelled` and then
+        :meth:`cancel_shielded_checkpoint`.
+        """
+
+    @classmethod
+    async def checkpoint_if_cancelled(cls) -> None:
+        """
+        Check if the current task group has been cancelled.
+
+        This will check if the task has been cancelled, but will not allow other tasks
+        to be scheduled if not.
+
+        """
+        if cls.current_effective_deadline() == -math.inf:
+            await cls.checkpoint()
+
+    @classmethod
+    async def cancel_shielded_checkpoint(cls) -> None:
+        """
+        Allow the rescheduling of other tasks.
+
+        This will give other tasks the opportunity to run, but without checking if the
+        current task group has been cancelled, unlike with :meth:`checkpoint`.
+
+        """
+        with cls.create_cancel_scope(shield=True):
+            await cls.sleep(0)
+
+    @classmethod
+    @abstractmethod
+    async def sleep(cls, delay: float) -> None:
+        """
+        Pause the current task for the specified duration.
+
+        :param delay: the duration, in seconds
+        """
+
+    @classmethod
+    @abstractmethod
+    def create_cancel_scope(
+        cls, *, deadline: float = math.inf, shield: bool = False
+    ) -> CancelScope:
         pass
-    else:
-        raise RuntimeError(f"Already running {asynclib_name} in this thread")
 
-    try:
-        async_backend = get_async_backend(backend)
-    except ImportError as exc:
-        raise LookupError(f"No such backend: {backend}") from exc
+    @classmethod
+    @abstractmethod
+    def current_effective_deadline(cls) -> float:
+        """
+        Return the nearest deadline among all the cancel scopes effective for the
+        current task.
 
-    token = None
-    if sniffio.current_async_library_cvar.get(None) is None:
-        # Since we're in control of the event loop, we can cache the name of the async
-        # library
-        token = sniffio.current_async_library_cvar.set(backend)
+        :return:
+            - a clock value from the event loop's internal clock
+            - ``inf`` if there is no deadline in effect
+            - ``-inf`` if the current scope has been cancelled
+        :rtype: float
+        """
 
-    try:
-        backend_options = backend_options or {}
-        return async_backend.run(func, args, {}, backend_options)
-    finally:
-        if token:
-            sniffio.current_async_library_cvar.reset(token)
+    @classmethod
+    @abstractmethod
+    def create_task_group(cls) -> TaskGroup:
+        pass
 
+    @classmethod
+    @abstractmethod
+    def create_event(cls) -> Event:
+        pass
 
-async def sleep(delay: float) -> None:
-    """
-    Pause the current task for the specified duration.
+    @classmethod
+    @abstractmethod
+    def create_lock(cls, *, fast_acquire: bool) -> Lock:
+        pass
 
-    :param delay: the duration, in seconds
+    @classmethod
+    @abstractmethod
+    def create_semaphore(
+        cls,
+        initial_value: int,
+        *,
+        max_value: int | None = None,
+        fast_acquire: bool = False,
+    ) -> Semaphore:
+        pass
 
-    """
-    return await get_async_backend().sleep(delay)
+    @classmethod
+    @abstractmethod
+    def create_capacity_limiter(cls, total_tokens: float) -> CapacityLimiter:
+        pass
 
+    @classmethod
+    @abstractmethod
+    async def run_sync_in_worker_thread(
+        cls,
+        func: Callable[[Unpack[PosArgsT]], T_Retval],
+        args: tuple[Unpack[PosArgsT]],
+        abandon_on_cancel: bool = False,
+        limiter: CapacityLimiter | None = None,
+    ) -> T_Retval:
+        pass
 
-async def sleep_forever() -> None:
-    """
-    Pause the current task until it's cancelled.
+    @classmethod
+    @abstractmethod
+    def check_cancelled(cls) -> None:
+        pass
 
-    This is a shortcut for ``sleep(math.inf)``.
+    @classmethod
+    @abstractmethod
+    def run_async_from_thread(
+        cls,
+        func: Callable[[Unpack[PosArgsT]], Awaitable[T_Retval]],
+        args: tuple[Unpack[PosArgsT]],
+        token: object,
+    ) -> T_Retval:
+        pass
 
-    .. versionadded:: 3.1
+    @classmethod
+    @abstractmethod
+    def run_sync_from_thread(
+        cls,
+        func: Callable[[Unpack[PosArgsT]], T_Retval],
+        args: tuple[Unpack[PosArgsT]],
+        token: object,
+    ) -> T_Retval:
+        pass
 
-    """
-    await sleep(math.inf)
+    @classmethod
+    @abstractmethod
+    def create_blocking_portal(cls) -> BlockingPortal:
+        pass
 
+    @classmethod
+    @abstractmethod
+    async def open_process(
+        cls,
+        command: StrOrBytesPath | Sequence[StrOrBytesPath],
+        *,
+        stdin: int | IO[Any] | None,
+        stdout: int | IO[Any] | None,
+        stderr: int | IO[Any] | None,
+        **kwargs: Any,
+    ) -> Process:
+        pass
 
-async def sleep_until(deadline: float) -> None:
-    """
-    Pause the current task until the given time.
+    @classmethod
+    @abstractmethod
+    def setup_process_pool_exit_at_shutdown(cls, workers: set[Process]) -> None:
+        pass
 
-    :param deadline: the absolute time to wake up at (according to the internal
-        monotonic clock of the event loop)
+    @classmethod
+    @abstractmethod
+    async def connect_tcp(
+        cls, host: str, port: int, local_address: IPSockAddrType | None = None
+    ) -> SocketStream:
+        pass
 
-    .. versionadded:: 3.1
+    @classmethod
+    @abstractmethod
+    async def connect_unix(cls, path: str | bytes) -> UNIXSocketStream:
+        pass
 
-    """
-    now = current_time()
-    await sleep(max(deadline - now, 0))
+    @classmethod
+    @abstractmethod
+    def create_tcp_listener(cls, sock: socket) -> SocketListener:
+        pass
 
+    @classmethod
+    @abstractmethod
+    def create_unix_listener(cls, sock: socket) -> SocketListener:
+        pass
 
-def current_time() -> float:
-    """
-    Return the current value of the event loop's internal clock.
+    @classmethod
+    @abstractmethod
+    async def create_udp_socket(
+        cls,
+        family: AddressFamily,
+        local_address: IPSockAddrType | None,
+        remote_address: IPSockAddrType | None,
+        reuse_port: bool,
+    ) -> UDPSocket | ConnectedUDPSocket:
+        pass
 
-    :return: the clock value (seconds)
+    @classmethod
+    @overload
+    async def create_unix_datagram_socket(
+        cls, raw_socket: socket, remote_path: None
+    ) -> UNIXDatagramSocket: ...
 
-    """
-    return get_async_backend().current_time()
+    @classmethod
+    @overload
+    async def create_unix_datagram_socket(
+        cls, raw_socket: socket, remote_path: str | bytes
+    ) -> ConnectedUNIXDatagramSocket: ...
 
+    @classmethod
+    @abstractmethod
+    async def create_unix_datagram_socket(
+        cls, raw_socket: socket, remote_path: str | bytes | None
+    ) -> UNIXDatagramSocket | ConnectedUNIXDatagramSocket:
+        pass
 
-def get_all_backends() -> tuple[str, ...]:
-    """Return a tuple of the names of all built-in backends."""
-    return BACKENDS
+    @classmethod
+    @abstractmethod
+    async def getaddrinfo(
+        cls,
+        host: bytes | str | None,
+        port: str | int | None,
+        *,
+        family: int | AddressFamily = 0,
+        type: int | SocketKind = 0,
+        proto: int = 0,
+        flags: int = 0,
+    ) -> Sequence[
+        tuple[
+            AddressFamily,
+            SocketKind,
+            int,
+            str,
+            tuple[str, int] | tuple[str, int, int, int] | tuple[int, bytes],
+        ]
+    ]:
+        pass
 
+    @classmethod
+    @abstractmethod
+    async def getnameinfo(
+        cls, sockaddr: IPSockAddrType, flags: int = 0
+    ) -> tuple[str, str]:
+        pass
 
-def get_cancelled_exc_class() -> type[BaseException]:
-    """Return the current async library's cancellation exception class."""
-    return get_async_backend().cancelled_exception_class()
+    @classmethod
+    @abstractmethod
+    async def wait_readable(cls, obj: FileDescriptorLike) -> None:
+        pass
 
+    @classmethod
+    @abstractmethod
+    async def wait_writable(cls, obj: FileDescriptorLike) -> None:
+        pass
 
-#
-# Private API
-#
+    @classmethod
+    @abstractmethod
+    def notify_closing(cls, obj: FileDescriptorLike) -> None:
+        pass
 
+    @classmethod
+    @abstractmethod
+    async def wrap_listener_socket(cls, sock: socket) -> SocketListener:
+        pass
 
-@contextmanager
-def claim_worker_thread(
-    backend_class: type[AsyncBackend], token: object
-) -> Generator[Any, None, None]:
-    from ..lowlevel import EventLoopToken
+    @classmethod
+    @abstractmethod
+    async def wrap_stream_socket(cls, sock: socket) -> SocketStream:
+        pass
 
-    threadlocals.current_token = EventLoopToken(backend_class, token)
-    try:
-        yield
-    finally:
-        del threadlocals.current_token
+    @classmethod
+    @abstractmethod
+    async def wrap_unix_stream_socket(cls, sock: socket) -> UNIXSocketStream:
+        pass
 
+    @classmethod
+    @abstractmethod
+    async def wrap_udp_socket(cls, sock: socket) -> UDPSocket:
+        pass
 
-def get_async_backend(asynclib_name: str | None = None) -> type[AsyncBackend]:
-    if asynclib_name is None:
-        asynclib_name = sniffio.current_async_library()
+    @classmethod
+    @abstractmethod
+    async def wrap_connected_udp_socket(cls, sock: socket) -> ConnectedUDPSocket:
+        pass
 
-    # We use our own dict instead of sys.modules to get the already imported back-end
-    # class because the appropriate modules in sys.modules could potentially be only
-    # partially initialized
-    try:
-        return loaded_backends[asynclib_name]
-    except KeyError:
-        module = import_module(f"anyio._backends._{asynclib_name}")
-        loaded_backends[asynclib_name] = module.backend_class
-        return module.backend_class
+    @classmethod
+    @abstractmethod
+    async def wrap_unix_datagram_socket(cls, sock: socket) -> UNIXDatagramSocket:
+        pass
+
+    @classmethod
+    @abstractmethod
+    async def wrap_connected_unix_datagram_socket(
+        cls, sock: socket
+    ) -> ConnectedUNIXDatagramSocket:
+        pass
+
+    @classmethod
+    @abstractmethod
+    def current_default_thread_limiter(cls) -> CapacityLimiter:
+        pass
+
+    @classmethod
+    @abstractmethod
+    def open_signal_receiver(
+        cls, *signals: Signals
+    ) -> AbstractContextManager[AsyncIterator[Signals]]:
+        pass
+
+    @classmethod
+    @abstractmethod
+    def get_current_task(cls) -> TaskInfo:
+        pass
+
+    @classmethod
+    @abstractmethod
+    def get_running_tasks(cls) -> Sequence[TaskInfo]:
+        pass
+
+    @classmethod
+    @abstractmethod
+    async def wait_all_tasks_blocked(cls) -> None:
+        pass
+
+    @classmethod
+    @abstractmethod
+    def create_test_runner(cls, options: dict[str, Any]) -> TestRunner:
+        pass
