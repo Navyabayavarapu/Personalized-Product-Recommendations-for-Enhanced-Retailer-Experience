@@ -1,6 +1,15 @@
-The MIT License (MIT)
+The following files are derived from Stackless Python and are subject to the
+same license as Stackless Python:
 
-Copyright (c) 2018 Sebastián Ramírez
+	src/greenlet/slp_platformselect.h
+	files in src/greenlet/platform/ directory
+
+See LICENSE.PSF and http://www.stackless.com/ for details.
+
+Unless otherwise noted, the files in greenlet have been released under the
+following MIT license:
+
+Copyright (c) Armin Rigo, Christian Tismer and contributors
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
