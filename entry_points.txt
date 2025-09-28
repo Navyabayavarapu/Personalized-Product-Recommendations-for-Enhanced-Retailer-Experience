@@ -1,2 +1,5 @@
-[pytest11]
-anyio = anyio.pytest_plugin
+[console_scripts]
+fastapi = fastapi.cli:main
+
+[gui_scripts]
+

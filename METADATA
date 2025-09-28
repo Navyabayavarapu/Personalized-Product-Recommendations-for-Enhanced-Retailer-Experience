@@ -1,441 +1,575 @@
 Metadata-Version: 2.1
-Name: colorama
-Version: 0.4.6
-Summary: Cross-platform colored terminal text.
-Project-URL: Homepage, https://github.com/tartley/colorama
-Author-email: Jonathan Hartley <tartley@tartley.com>
-License-File: LICENSE.txt
-Keywords: ansi,color,colour,crossplatform,terminal,text,windows,xplatform
-Classifier: Development Status :: 5 - Production/Stable
-Classifier: Environment :: Console
-Classifier: Intended Audience :: Developers
-Classifier: License :: OSI Approved :: BSD License
+Name: fastapi
+Version: 0.117.1
+Summary: FastAPI framework, high performance, easy to learn, fast to code, ready for production
+Author-Email: =?utf-8?q?Sebasti=C3=A1n_Ram=C3=ADrez?= <tiangolo@gmail.com>
+Classifier: Intended Audience :: Information Technology
+Classifier: Intended Audience :: System Administrators
 Classifier: Operating System :: OS Independent
-Classifier: Programming Language :: Python
-Classifier: Programming Language :: Python :: 2
-Classifier: Programming Language :: Python :: 2.7
 Classifier: Programming Language :: Python :: 3
-Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python
+Classifier: Topic :: Internet
+Classifier: Topic :: Software Development :: Libraries :: Application Frameworks
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Classifier: Topic :: Software Development :: Libraries
+Classifier: Topic :: Software Development
+Classifier: Typing :: Typed
+Classifier: Development Status :: 4 - Beta
+Classifier: Environment :: Web Environment
+Classifier: Framework :: AsyncIO
+Classifier: Framework :: FastAPI
+Classifier: Framework :: Pydantic
+Classifier: Framework :: Pydantic :: 1
+Classifier: Framework :: Pydantic :: 2
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3 :: Only
 Classifier: Programming Language :: Python :: 3.8
 Classifier: Programming Language :: Python :: 3.9
 Classifier: Programming Language :: Python :: 3.10
-Classifier: Programming Language :: Python :: Implementation :: CPython
-Classifier: Programming Language :: Python :: Implementation :: PyPy
-Classifier: Topic :: Terminals
-Requires-Python: !=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,!=3.5.*,!=3.6.*,>=2.7
-Description-Content-Type: text/x-rst
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Programming Language :: Python :: 3.13
+Classifier: Topic :: Internet :: WWW/HTTP :: HTTP Servers
+Classifier: Topic :: Internet :: WWW/HTTP
+Project-URL: Homepage, https://github.com/fastapi/fastapi
+Project-URL: Documentation, https://fastapi.tiangolo.com/
+Project-URL: Repository, https://github.com/fastapi/fastapi
+Project-URL: Issues, https://github.com/fastapi/fastapi/issues
+Project-URL: Changelog, https://fastapi.tiangolo.com/release-notes/
+Requires-Python: >=3.8
+Requires-Dist: starlette<0.49.0,>=0.40.0
+Requires-Dist: pydantic!=1.8,!=1.8.1,!=2.0.0,!=2.0.1,!=2.1.0,<3.0.0,>=1.7.4
+Requires-Dist: typing-extensions>=4.8.0
+Provides-Extra: standard
+Requires-Dist: fastapi-cli[standard]>=0.0.8; extra == "standard"
+Requires-Dist: httpx<1.0.0,>=0.23.0; extra == "standard"
+Requires-Dist: jinja2>=3.1.5; extra == "standard"
+Requires-Dist: python-multipart>=0.0.18; extra == "standard"
+Requires-Dist: email-validator>=2.0.0; extra == "standard"
+Requires-Dist: uvicorn[standard]>=0.12.0; extra == "standard"
+Provides-Extra: standard-no-fastapi-cloud-cli
+Requires-Dist: fastapi-cli[standard-no-fastapi-cloud-cli]>=0.0.8; extra == "standard-no-fastapi-cloud-cli"
+Requires-Dist: httpx<1.0.0,>=0.23.0; extra == "standard-no-fastapi-cloud-cli"
+Requires-Dist: jinja2>=3.1.5; extra == "standard-no-fastapi-cloud-cli"
+Requires-Dist: python-multipart>=0.0.18; extra == "standard-no-fastapi-cloud-cli"
+Requires-Dist: email-validator>=2.0.0; extra == "standard-no-fastapi-cloud-cli"
+Requires-Dist: uvicorn[standard]>=0.12.0; extra == "standard-no-fastapi-cloud-cli"
+Provides-Extra: all
+Requires-Dist: fastapi-cli[standard]>=0.0.8; extra == "all"
+Requires-Dist: httpx<1.0.0,>=0.23.0; extra == "all"
+Requires-Dist: jinja2>=3.1.5; extra == "all"
+Requires-Dist: python-multipart>=0.0.18; extra == "all"
+Requires-Dist: itsdangerous>=1.1.0; extra == "all"
+Requires-Dist: pyyaml>=5.3.1; extra == "all"
+Requires-Dist: ujson!=4.0.2,!=4.1.0,!=4.2.0,!=4.3.0,!=5.0.0,!=5.1.0,>=4.0.1; extra == "all"
+Requires-Dist: orjson>=3.2.1; extra == "all"
+Requires-Dist: email-validator>=2.0.0; extra == "all"
+Requires-Dist: uvicorn[standard]>=0.12.0; extra == "all"
+Requires-Dist: pydantic-settings>=2.0.0; extra == "all"
+Requires-Dist: pydantic-extra-types>=2.0.0; extra == "all"
+Description-Content-Type: text/markdown
+
+<p align="center">
+  <a href="https://fastapi.tiangolo.com"><img src="https://fastapi.tiangolo.com/img/logo-margin/logo-teal.png" alt="FastAPI"></a>
+</p>
+<p align="center">
+    <em>FastAPI framework, high performance, easy to learn, fast to code, ready for production</em>
+</p>
+<p align="center">
+<a href="https://github.com/fastapi/fastapi/actions?query=workflow%3ATest+event%3Apush+branch%3Amaster" target="_blank">
+    <img src="https://github.com/fastapi/fastapi/actions/workflows/test.yml/badge.svg?event=push&branch=master" alt="Test">
+</a>
+<a href="https://coverage-badge.samuelcolvin.workers.dev/redirect/fastapi/fastapi" target="_blank">
+    <img src="https://coverage-badge.samuelcolvin.workers.dev/fastapi/fastapi.svg" alt="Coverage">
+</a>
+<a href="https://pypi.org/project/fastapi" target="_blank">
+    <img src="https://img.shields.io/pypi/v/fastapi?color=%2334D058&label=pypi%20package" alt="Package version">
+</a>
+<a href="https://pypi.org/project/fastapi" target="_blank">
+    <img src="https://img.shields.io/pypi/pyversions/fastapi.svg?color=%2334D058" alt="Supported Python versions">
+</a>
+</p>
+
+---
+
+**Documentation**: <a href="https://fastapi.tiangolo.com" target="_blank">https://fastapi.tiangolo.com</a>
 
-.. image:: https://img.shields.io/pypi/v/colorama.svg
-    :target: https://pypi.org/project/colorama/
-    :alt: Latest Version
+**Source Code**: <a href="https://github.com/fastapi/fastapi" target="_blank">https://github.com/fastapi/fastapi</a>
 
-.. image:: https://img.shields.io/pypi/pyversions/colorama.svg
-    :target: https://pypi.org/project/colorama/
-    :alt: Supported Python versions
+---
 
-.. image:: https://github.com/tartley/colorama/actions/workflows/test.yml/badge.svg
-    :target: https://github.com/tartley/colorama/actions/workflows/test.yml
-    :alt: Build Status
+FastAPI is a modern, fast (high-performance), web framework for building APIs with Python based on standard Python type hints.
 
-Colorama
-========
+The key features are:
 
-Makes ANSI escape character sequences (for producing colored terminal text and
-cursor positioning) work under MS Windows.
+* **Fast**: Very high performance, on par with **NodeJS** and **Go** (thanks to Starlette and Pydantic). [One of the fastest Python frameworks available](#performance).
+* **Fast to code**: Increase the speed to develop features by about 200% to 300%. *
+* **Fewer bugs**: Reduce about 40% of human (developer) induced errors. *
+* **Intuitive**: Great editor support. <abbr title="also known as auto-complete, autocompletion, IntelliSense">Completion</abbr> everywhere. Less time debugging.
+* **Easy**: Designed to be easy to use and learn. Less time reading docs.
+* **Short**: Minimize code duplication. Multiple features from each parameter declaration. Fewer bugs.
+* **Robust**: Get production-ready code. With automatic interactive documentation.
+* **Standards-based**: Based on (and fully compatible with) the open standards for APIs: <a href="https://github.com/OAI/OpenAPI-Specification" class="external-link" target="_blank">OpenAPI</a> (previously known as Swagger) and <a href="https://json-schema.org/" class="external-link" target="_blank">JSON Schema</a>.
 
-.. |donate| image:: https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif
-  :target: https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=2MZ9D2GMLYCUJ&item_name=Colorama&currency_code=USD
-  :alt: Donate with Paypal
+<small>* estimation based on tests on an internal development team, building production applications.</small>
 
-`PyPI for releases <https://pypi.org/project/colorama/>`_ |
-`Github for source <https://github.com/tartley/colorama>`_ |
-`Colorama for enterprise on Tidelift <https://github.com/tartley/colorama/blob/master/ENTERPRISE.md>`_
+## Sponsors
 
-If you find Colorama useful, please |donate| to the authors. Thank you!
+<!-- sponsors -->
 
-Installation
-------------
+<a href="https://blockbee.io?ref=fastapi" target="_blank" title="BlockBee Cryptocurrency Payment Gateway"><img src="https://fastapi.tiangolo.com/img/sponsors/blockbee.png"></a>
+<a href="https://github.com/scalar/scalar/?utm_source=fastapi&utm_medium=website&utm_campaign=main-badge" target="_blank" title="Scalar: Beautiful Open-Source API References from Swagger/OpenAPI files"><img src="https://fastapi.tiangolo.com/img/sponsors/scalar.svg"></a>
+<a href="https://www.propelauth.com/?utm_source=fastapi&utm_campaign=1223&utm_medium=mainbadge" target="_blank" title="Auth, user management and more for your B2B product"><img src="https://fastapi.tiangolo.com/img/sponsors/propelauth.png"></a>
+<a href="https://zuplo.link/fastapi-gh" target="_blank" title="Zuplo: Deploy, Secure, Document, and Monetize your FastAPI"><img src="https://fastapi.tiangolo.com/img/sponsors/zuplo.png"></a>
+<a href="https://liblab.com?utm_source=fastapi" target="_blank" title="liblab - Generate SDKs from FastAPI"><img src="https://fastapi.tiangolo.com/img/sponsors/liblab.png"></a>
+<a href="https://docs.render.com/deploy-fastapi?utm_source=deploydoc&utm_medium=referral&utm_campaign=fastapi" target="_blank" title="Deploy & scale any full-stack web app on Render. Focus on building apps, not infra."><img src="https://fastapi.tiangolo.com/img/sponsors/render.svg"></a>
+<a href="https://www.coderabbit.ai/?utm_source=fastapi&utm_medium=badge&utm_campaign=fastapi" target="_blank" title="Cut Code Review Time & Bugs in Half with CodeRabbit"><img src="https://fastapi.tiangolo.com/img/sponsors/coderabbit.png"></a>
+<a href="https://subtotal.com/?utm_source=fastapi&utm_medium=sponsorship&utm_campaign=open-source" target="_blank" title="The Gold Standard in Retail Account Linking"><img src="https://fastapi.tiangolo.com/img/sponsors/subtotal.svg"></a>
+<a href="https://docs.railway.com/guides/fastapi?utm_medium=integration&utm_source=docs&utm_campaign=fastapi" target="_blank" title="Deploy enterprise applications at startup speed"><img src="https://fastapi.tiangolo.com/img/sponsors/railway.png"></a>
+<a href="https://databento.com/?utm_source=fastapi&utm_medium=sponsor&utm_content=display" target="_blank" title="Pay as you go for market data"><img src="https://fastapi.tiangolo.com/img/sponsors/databento.svg"></a>
+<a href="https://speakeasy.com/editor?utm_source=fastapi+repo&utm_medium=github+sponsorship" target="_blank" title="SDKs for your API | Speakeasy"><img src="https://fastapi.tiangolo.com/img/sponsors/speakeasy.png"></a>
+<a href="https://www.svix.com/" target="_blank" title="Svix - Webhooks as a service"><img src="https://fastapi.tiangolo.com/img/sponsors/svix.svg"></a>
+<a href="https://www.stainlessapi.com/?utm_source=fastapi&utm_medium=referral" target="_blank" title="Stainless | Generate best-in-class SDKs"><img src="https://fastapi.tiangolo.com/img/sponsors/stainless.png"></a>
+<a href="https://www.permit.io/blog/implement-authorization-in-fastapi?utm_source=github&utm_medium=referral&utm_campaign=fastapi" target="_blank" title="Fine-Grained Authorization for FastAPI"><img src="https://fastapi.tiangolo.com/img/sponsors/permit.png"></a>
+<a href="https://www.interviewpal.com/?utm_source=fastapi&utm_medium=open-source&utm_campaign=dev-hiring" target="_blank" title="InterviewPal - AI Interview Coach for Engineers and Devs"><img src="https://fastapi.tiangolo.com/img/sponsors/interviewpal.png"></a>
+<a href="https://dribia.com/en/" target="_blank" title="Dribia - Data Science within your reach"><img src="https://fastapi.tiangolo.com/img/sponsors/dribia.png"></a>
 
-Tested on CPython 2.7, 3.7, 3.8, 3.9 and 3.10 and Pypy 2.7 and 3.8.
+<!-- /sponsors -->
 
-No requirements other than the standard library.
+<a href="https://fastapi.tiangolo.com/fastapi-people/#sponsors" class="external-link" target="_blank">Other sponsors</a>
 
-.. code-block:: bash
+## Opinions
 
-    pip install colorama
-    # or
-    conda install -c anaconda colorama
+"_[...] I'm using **FastAPI** a ton these days. [...] I'm actually planning to use it for all of my team's **ML services at Microsoft**. Some of them are getting integrated into the core **Windows** product and some **Office** products._"
 
-Description
------------
+<div style="text-align: right; margin-right: 10%;">Kabir Khan - <strong>Microsoft</strong> <a href="https://github.com/fastapi/fastapi/pull/26" target="_blank"><small>(ref)</small></a></div>
 
-ANSI escape character sequences have long been used to produce colored terminal
-text and cursor positioning on Unix and Macs. Colorama makes this work on
-Windows, too, by wrapping ``stdout``, stripping ANSI sequences it finds (which
-would appear as gobbledygook in the output), and converting them into the
-appropriate win32 calls to modify the state of the terminal. On other platforms,
-Colorama does nothing.
+---
 
-This has the upshot of providing a simple cross-platform API for printing
-colored terminal text from Python, and has the happy side-effect that existing
-applications or libraries which use ANSI sequences to produce colored output on
-Linux or Macs can now also work on Windows, simply by calling
-``colorama.just_fix_windows_console()`` (since v0.4.6) or ``colorama.init()``
-(all versions, but may have other side-effects – see below).
+"_We adopted the **FastAPI** library to spawn a **REST** server that can be queried to obtain **predictions**. [for Ludwig]_"
 
-An alternative approach is to install ``ansi.sys`` on Windows machines, which
-provides the same behaviour for all applications running in terminals. Colorama
-is intended for situations where that isn't easy (e.g., maybe your app doesn't
-have an installer.)
+<div style="text-align: right; margin-right: 10%;">Piero Molino, Yaroslav Dudin, and Sai Sumanth Miryala - <strong>Uber</strong> <a href="https://eng.uber.com/ludwig-v0-2/" target="_blank"><small>(ref)</small></a></div>
 
-Demo scripts in the source code repository print some colored text using
-ANSI sequences. Compare their output under Gnome-terminal's built in ANSI
-handling, versus on Windows Command-Prompt using Colorama:
+---
 
-.. image:: https://github.com/tartley/colorama/raw/master/screenshots/ubuntu-demo.png
-    :width: 661
-    :height: 357
-    :alt: ANSI sequences on Ubuntu under gnome-terminal.
+"_**Netflix** is pleased to announce the open-source release of our **crisis management** orchestration framework: **Dispatch**! [built with **FastAPI**]_"
 
-.. image:: https://github.com/tartley/colorama/raw/master/screenshots/windows-demo.png
-    :width: 668
-    :height: 325
-    :alt: Same ANSI sequences on Windows, using Colorama.
+<div style="text-align: right; margin-right: 10%;">Kevin Glisson, Marc Vilanova, Forest Monsen - <strong>Netflix</strong> <a href="https://netflixtechblog.com/introducing-dispatch-da4b8a2a8072" target="_blank"><small>(ref)</small></a></div>
 
-These screenshots show that, on Windows, Colorama does not support ANSI 'dim
-text'; it looks the same as 'normal text'.
+---
 
-Usage
------
+"_I’m over the moon excited about **FastAPI**. It’s so fun!_"
 
-Initialisation
-..............
+<div style="text-align: right; margin-right: 10%;">Brian Okken - <strong><a href="https://pythonbytes.fm/episodes/show/123/time-to-right-the-py-wrongs?time_in_sec=855" target="_blank">Python Bytes</a> podcast host</strong> <a href="https://x.com/brianokken/status/1112220079972728832" target="_blank"><small>(ref)</small></a></div>
 
-If the only thing you want from Colorama is to get ANSI escapes to work on
-Windows, then run:
+---
 
-.. code-block:: python
+"_Honestly, what you've built looks super solid and polished. In many ways, it's what I wanted **Hug** to be - it's really inspiring to see someone build that._"
 
-    from colorama import just_fix_windows_console
-    just_fix_windows_console()
+<div style="text-align: right; margin-right: 10%;">Timothy Crosley - <strong><a href="https://github.com/hugapi/hug" target="_blank">Hug</a> creator</strong> <a href="https://news.ycombinator.com/item?id=19455465" target="_blank"><small>(ref)</small></a></div>
 
-If you're on a recent version of Windows 10 or better, and your stdout/stderr
-are pointing to a Windows console, then this will flip the magic configuration
-switch to enable Windows' built-in ANSI support.
+---
 
-If you're on an older version of Windows, and your stdout/stderr are pointing to
-a Windows console, then this will wrap ``sys.stdout`` and/or ``sys.stderr`` in a
-magic file object that intercepts ANSI escape sequences and issues the
-appropriate Win32 calls to emulate them.
+"_If you're looking to learn one **modern framework** for building REST APIs, check out **FastAPI** [...] It's fast, easy to use and easy to learn [...]_"
 
-In all other circumstances, it does nothing whatsoever. Basically the idea is
-that this makes Windows act like Unix with respect to ANSI escape handling.
+"_We've switched over to **FastAPI** for our **APIs** [...] I think you'll like it [...]_"
 
-It's safe to call this function multiple times. It's safe to call this function
-on non-Windows platforms, but it won't do anything. It's safe to call this
-function when one or both of your stdout/stderr are redirected to a file – it
-won't do anything to those streams.
+<div style="text-align: right; margin-right: 10%;">Ines Montani - Matthew Honnibal - <strong><a href="https://explosion.ai" target="_blank">Explosion AI</a> founders - <a href="https://spacy.io" target="_blank">spaCy</a> creators</strong> <a href="https://x.com/_inesmontani/status/1144173225322143744" target="_blank"><small>(ref)</small></a> - <a href="https://x.com/honnibal/status/1144031421859655680" target="_blank"><small>(ref)</small></a></div>
 
-Alternatively, you can use the older interface with more features (but also more
-potential footguns):
+---
 
-.. code-block:: python
+"_If anyone is looking to build a production Python API, I would highly recommend **FastAPI**. It is **beautifully designed**, **simple to use** and **highly scalable**, it has become a **key component** in our API first development strategy and is driving many automations and services such as our Virtual TAC Engineer._"
 
-    from colorama import init
-    init()
+<div style="text-align: right; margin-right: 10%;">Deon Pillsbury - <strong>Cisco</strong> <a href="https://www.linkedin.com/posts/deonpillsbury_cisco-cx-python-activity-6963242628536487936-trAp/" target="_blank"><small>(ref)</small></a></div>
 
-This does the same thing as ``just_fix_windows_console``, except for the
-following differences:
+---
 
-- It's not safe to call ``init`` multiple times; you can end up with multiple
-  layers of wrapping and broken ANSI support.
+## **Typer**, the FastAPI of CLIs
 
-- Colorama will apply a heuristic to guess whether stdout/stderr support ANSI,
-  and if it thinks they don't, then it will wrap ``sys.stdout`` and
-  ``sys.stderr`` in a magic file object that strips out ANSI escape sequences
-  before printing them. This happens on all platforms, and can be convenient if
-  you want to write your code to emit ANSI escape sequences unconditionally, and
-  let Colorama decide whether they should actually be output. But note that
-  Colorama's heuristic is not particularly clever.
+<a href="https://typer.tiangolo.com" target="_blank"><img src="https://typer.tiangolo.com/img/logo-margin/logo-margin-vector.svg" style="width: 20%;"></a>
 
-- ``init`` also accepts explicit keyword args to enable/disable various
-  functionality – see below.
+If you are building a <abbr title="Command Line Interface">CLI</abbr> app to be used in the terminal instead of a web API, check out <a href="https://typer.tiangolo.com/" class="external-link" target="_blank">**Typer**</a>.
 
-To stop using Colorama before your program exits, simply call ``deinit()``.
-This will restore ``stdout`` and ``stderr`` to their original values, so that
-Colorama is disabled. To resume using Colorama again, call ``reinit()``; it is
-cheaper than calling ``init()`` again (but does the same thing).
+**Typer** is FastAPI's little sibling. And it's intended to be the **FastAPI of CLIs**. ⌨️ 🚀
 
-Most users should depend on ``colorama >= 0.4.6``, and use
-``just_fix_windows_console``. The old ``init`` interface will be supported
-indefinitely for backwards compatibility, but we don't plan to fix any issues
-with it, also for backwards compatibility.
+## Requirements
 
-Colored Output
-..............
+FastAPI stands on the shoulders of giants:
 
-Cross-platform printing of colored text can then be done using Colorama's
-constant shorthand for ANSI escape sequences. These are deliberately
-rudimentary, see below.
+* <a href="https://www.starlette.io/" class="external-link" target="_blank">Starlette</a> for the web parts.
+* <a href="https://docs.pydantic.dev/" class="external-link" target="_blank">Pydantic</a> for the data parts.
 
-.. code-block:: python
+## Installation
 
-    from colorama import Fore, Back, Style
-    print(Fore.RED + 'some red text')
-    print(Back.GREEN + 'and with a green background')
-    print(Style.DIM + 'and in dim text')
-    print(Style.RESET_ALL)
-    print('back to normal now')
+Create and activate a <a href="https://fastapi.tiangolo.com/virtual-environments/" class="external-link" target="_blank">virtual environment</a> and then install FastAPI:
 
-...or simply by manually printing ANSI sequences from your own code:
+<div class="termy">
 
-.. code-block:: python
+```console
+$ pip install "fastapi[standard]"
 
-    print('\033[31m' + 'some red text')
-    print('\033[39m') # and reset to default color
+---> 100%
+```
 
-...or, Colorama can be used in conjunction with existing ANSI libraries
-such as the venerable `Termcolor <https://pypi.org/project/termcolor/>`_
-the fabulous `Blessings <https://pypi.org/project/blessings/>`_,
-or the incredible `_Rich <https://pypi.org/project/rich/>`_.
+</div>
 
-If you wish Colorama's Fore, Back and Style constants were more capable,
-then consider using one of the above highly capable libraries to generate
-colors, etc, and use Colorama just for its primary purpose: to convert
-those ANSI sequences to also work on Windows:
+**Note**: Make sure you put `"fastapi[standard]"` in quotes to ensure it works in all terminals.
 
-SIMILARLY, do not send PRs adding the generation of new ANSI types to Colorama.
-We are only interested in converting ANSI codes to win32 API calls, not
-shortcuts like the above to generate ANSI characters.
+## Example
 
-.. code-block:: python
+### Create it
 
-    from colorama import just_fix_windows_console
-    from termcolor import colored
+Create a file `main.py` with:
 
-    # use Colorama to make Termcolor work on Windows too
-    just_fix_windows_console()
+```Python
+from typing import Union
 
-    # then use Termcolor for all colored text output
-    print(colored('Hello, World!', 'green', 'on_red'))
+from fastapi import FastAPI
 
-Available formatting constants are::
+app = FastAPI()
 
-    Fore: BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE, RESET.
-    Back: BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE, RESET.
-    Style: DIM, NORMAL, BRIGHT, RESET_ALL
 
-``Style.RESET_ALL`` resets foreground, background, and brightness. Colorama will
-perform this reset automatically on program exit.
+@app.get("/")
+def read_root():
+    return {"Hello": "World"}
 
-These are fairly well supported, but not part of the standard::
 
-    Fore: LIGHTBLACK_EX, LIGHTRED_EX, LIGHTGREEN_EX, LIGHTYELLOW_EX, LIGHTBLUE_EX, LIGHTMAGENTA_EX, LIGHTCYAN_EX, LIGHTWHITE_EX
-    Back: LIGHTBLACK_EX, LIGHTRED_EX, LIGHTGREEN_EX, LIGHTYELLOW_EX, LIGHTBLUE_EX, LIGHTMAGENTA_EX, LIGHTCYAN_EX, LIGHTWHITE_EX
+@app.get("/items/{item_id}")
+def read_item(item_id: int, q: Union[str, None] = None):
+    return {"item_id": item_id, "q": q}
+```
 
-Cursor Positioning
-..................
+<details markdown="1">
+<summary>Or use <code>async def</code>...</summary>
 
-ANSI codes to reposition the cursor are supported. See ``demos/demo06.py`` for
-an example of how to generate them.
+If your code uses `async` / `await`, use `async def`:
 
-Init Keyword Args
-.................
+```Python hl_lines="9  14"
+from typing import Union
 
-``init()`` accepts some ``**kwargs`` to override default behaviour.
+from fastapi import FastAPI
 
-init(autoreset=False):
-    If you find yourself repeatedly sending reset sequences to turn off color
-    changes at the end of every print, then ``init(autoreset=True)`` will
-    automate that:
+app = FastAPI()
 
-    .. code-block:: python
 
-        from colorama import init
-        init(autoreset=True)
-        print(Fore.RED + 'some red text')
-        print('automatically back to default color again')
+@app.get("/")
+async def read_root():
+    return {"Hello": "World"}
 
-init(strip=None):
-    Pass ``True`` or ``False`` to override whether ANSI codes should be
-    stripped from the output. The default behaviour is to strip if on Windows
-    or if output is redirected (not a tty).
 
-init(convert=None):
-    Pass ``True`` or ``False`` to override whether to convert ANSI codes in the
-    output into win32 calls. The default behaviour is to convert if on Windows
-    and output is to a tty (terminal).
+@app.get("/items/{item_id}")
+async def read_item(item_id: int, q: Union[str, None] = None):
+    return {"item_id": item_id, "q": q}
+```
 
-init(wrap=True):
-    On Windows, Colorama works by replacing ``sys.stdout`` and ``sys.stderr``
-    with proxy objects, which override the ``.write()`` method to do their work.
-    If this wrapping causes you problems, then this can be disabled by passing
-    ``init(wrap=False)``. The default behaviour is to wrap if ``autoreset`` or
-    ``strip`` or ``convert`` are True.
+**Note**:
 
-    When wrapping is disabled, colored printing on non-Windows platforms will
-    continue to work as normal. To do cross-platform colored output, you can
-    use Colorama's ``AnsiToWin32`` proxy directly:
+If you don't know, check the _"In a hurry?"_ section about <a href="https://fastapi.tiangolo.com/async/#in-a-hurry" target="_blank">`async` and `await` in the docs</a>.
 
-    .. code-block:: python
+</details>
 
-        import sys
-        from colorama import init, AnsiToWin32
-        init(wrap=False)
-        stream = AnsiToWin32(sys.stderr).stream
+### Run it
 
-        # Python 2
-        print >>stream, Fore.BLUE + 'blue text on stderr'
+Run the server with:
 
-        # Python 3
-        print(Fore.BLUE + 'blue text on stderr', file=stream)
+<div class="termy">
 
-Recognised ANSI Sequences
-.........................
+```console
+$ fastapi dev main.py
 
-ANSI sequences generally take the form::
+ ╭────────── FastAPI CLI - Development mode ───────────╮
+ │                                                     │
+ │  Serving at: http://127.0.0.1:8000                  │
+ │                                                     │
+ │  API docs: http://127.0.0.1:8000/docs               │
+ │                                                     │
+ │  Running in development mode, for production use:   │
+ │                                                     │
+ │  fastapi run                                        │
+ │                                                     │
+ ╰─────────────────────────────────────────────────────╯
 
-    ESC [ <param> ; <param> ... <command>
+INFO:     Will watch for changes in these directories: ['/home/user/code/awesomeapp']
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [2248755] using WatchFiles
+INFO:     Started server process [2248757]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+```
 
-Where ``<param>`` is an integer, and ``<command>`` is a single letter. Zero or
-more params are passed to a ``<command>``. If no params are passed, it is
-generally synonymous with passing a single zero. No spaces exist in the
-sequence; they have been inserted here simply to read more easily.
+</div>
 
-The only ANSI sequences that Colorama converts into win32 calls are::
+<details markdown="1">
+<summary>About the command <code>fastapi dev main.py</code>...</summary>
 
-    ESC [ 0 m       # reset all (colors and brightness)
-    ESC [ 1 m       # bright
-    ESC [ 2 m       # dim (looks same as normal brightness)
-    ESC [ 22 m      # normal brightness
+The command `fastapi dev` reads your `main.py` file, detects the **FastAPI** app in it, and starts a server using <a href="https://www.uvicorn.org" class="external-link" target="_blank">Uvicorn</a>.
 
-    # FOREGROUND:
-    ESC [ 30 m      # black
-    ESC [ 31 m      # red
-    ESC [ 32 m      # green
-    ESC [ 33 m      # yellow
-    ESC [ 34 m      # blue
-    ESC [ 35 m      # magenta
-    ESC [ 36 m      # cyan
-    ESC [ 37 m      # white
-    ESC [ 39 m      # reset
+By default, `fastapi dev` will start with auto-reload enabled for local development.
 
-    # BACKGROUND
-    ESC [ 40 m      # black
-    ESC [ 41 m      # red
-    ESC [ 42 m      # green
-    ESC [ 43 m      # yellow
-    ESC [ 44 m      # blue
-    ESC [ 45 m      # magenta
-    ESC [ 46 m      # cyan
-    ESC [ 47 m      # white
-    ESC [ 49 m      # reset
+You can read more about it in the <a href="https://fastapi.tiangolo.com/fastapi-cli/" target="_blank">FastAPI CLI docs</a>.
 
-    # cursor positioning
-    ESC [ y;x H     # position cursor at x across, y down
-    ESC [ y;x f     # position cursor at x across, y down
-    ESC [ n A       # move cursor n lines up
-    ESC [ n B       # move cursor n lines down
-    ESC [ n C       # move cursor n characters forward
-    ESC [ n D       # move cursor n characters backward
-
-    # clear the screen
-    ESC [ mode J    # clear the screen
-
-    # clear the line
-    ESC [ mode K    # clear the line
-
-Multiple numeric params to the ``'m'`` command can be combined into a single
-sequence::
-
-    ESC [ 36 ; 45 ; 1 m     # bright cyan text on magenta background
-
-All other ANSI sequences of the form ``ESC [ <param> ; <param> ... <command>``
-are silently stripped from the output on Windows.
-
-Any other form of ANSI sequence, such as single-character codes or alternative
-initial characters, are not recognised or stripped. It would be cool to add
-them though. Let me know if it would be useful for you, via the Issues on
-GitHub.
-
-Status & Known Problems
------------------------
-
-I've personally only tested it on Windows XP (CMD, Console2), Ubuntu
-(gnome-terminal, xterm), and OS X.
-
-Some valid ANSI sequences aren't recognised.
-
-If you're hacking on the code, see `README-hacking.md`_. ESPECIALLY, see the
-explanation there of why we do not want PRs that allow Colorama to generate new
-types of ANSI codes.
-
-See outstanding issues and wish-list:
-https://github.com/tartley/colorama/issues
-
-If anything doesn't work for you, or doesn't do what you expected or hoped for,
-I'd love to hear about it on that issues list, would be delighted by patches,
-and would be happy to grant commit access to anyone who submits a working patch
-or two.
-
-.. _README-hacking.md: README-hacking.md
-
-License
--------
-
-Copyright Jonathan Hartley & Arnon Yaari, 2013-2020. BSD 3-Clause license; see
-LICENSE file.
-
-Professional support
---------------------
-
-.. |tideliftlogo| image:: https://cdn2.hubspot.net/hubfs/4008838/website/logos/logos_for_download/Tidelift_primary-shorthand-logo.png
-   :alt: Tidelift
-   :target: https://tidelift.com/subscription/pkg/pypi-colorama?utm_source=pypi-colorama&utm_medium=referral&utm_campaign=readme
-
-.. list-table::
-   :widths: 10 100
-
-   * - |tideliftlogo|
-     - Professional support for colorama is available as part of the
-       `Tidelift Subscription`_.
-       Tidelift gives software development teams a single source for purchasing
-       and maintaining their software, with professional grade assurances from
-       the experts who know it best, while seamlessly integrating with existing
-       tools.
-
-.. _Tidelift Subscription: https://tidelift.com/subscription/pkg/pypi-colorama?utm_source=pypi-colorama&utm_medium=referral&utm_campaign=readme
-
-Thanks
-------
-
-See the CHANGELOG for more thanks!
-
-* Marc Schlaich (schlamar) for a ``setup.py`` fix for Python2.5.
-* Marc Abramowitz, reported & fixed a crash on exit with closed ``stdout``,
-  providing a solution to issue #7's setuptools/distutils debate,
-  and other fixes.
-* User 'eryksun', for guidance on correctly instantiating ``ctypes.windll``.
-* Matthew McCormick for politely pointing out a longstanding crash on non-Win.
-* Ben Hoyt, for a magnificent fix under 64-bit Windows.
-* Jesse at Empty Square for submitting a fix for examples in the README.
-* User 'jamessp', an observant documentation fix for cursor positioning.
-* User 'vaal1239', Dave Mckee & Lackner Kristof for a tiny but much-needed Win7
-  fix.
-* Julien Stuyck, for wisely suggesting Python3 compatible updates to README.
-* Daniel Griffith for multiple fabulous patches.
-* Oscar Lesta for a valuable fix to stop ANSI chars being sent to non-tty
-  output.
-* Roger Binns, for many suggestions, valuable feedback, & bug reports.
-* Tim Golden for thought and much appreciated feedback on the initial idea.
-* User 'Zearin' for updates to the README file.
-* John Szakmeister for adding support for light colors
-* Charles Merriam for adding documentation to demos
-* Jurko for a fix on 64-bit Windows CPython2.5 w/o ctypes
-* Florian Bruhin for a fix when stdout or stderr are None
-* Thomas Weininger for fixing ValueError on Windows
-* Remi Rampin for better Github integration and fixes to the README file
-* Simeon Visser for closing a file handle using 'with' and updating classifiers
-  to include Python 3.3 and 3.4
-* Andy Neff for fixing RESET of LIGHT_EX colors.
-* Jonathan Hartley for the initial idea and implementation.
+</details>
+
+### Check it
+
+Open your browser at <a href="http://127.0.0.1:8000/items/5?q=somequery" class="external-link" target="_blank">http://127.0.0.1:8000/items/5?q=somequery</a>.
+
+You will see the JSON response as:
+
+```JSON
+{"item_id": 5, "q": "somequery"}
+```
+
+You already created an API that:
+
+* Receives HTTP requests in the _paths_ `/` and `/items/{item_id}`.
+* Both _paths_ take `GET` <em>operations</em> (also known as HTTP _methods_).
+* The _path_ `/items/{item_id}` has a _path parameter_ `item_id` that should be an `int`.
+* The _path_ `/items/{item_id}` has an optional `str` _query parameter_ `q`.
+
+### Interactive API docs
+
+Now go to <a href="http://127.0.0.1:8000/docs" class="external-link" target="_blank">http://127.0.0.1:8000/docs</a>.
+
+You will see the automatic interactive API documentation (provided by <a href="https://github.com/swagger-api/swagger-ui" class="external-link" target="_blank">Swagger UI</a>):
+
+![Swagger UI](https://fastapi.tiangolo.com/img/index/index-01-swagger-ui-simple.png)
+
+### Alternative API docs
+
+And now, go to <a href="http://127.0.0.1:8000/redoc" class="external-link" target="_blank">http://127.0.0.1:8000/redoc</a>.
+
+You will see the alternative automatic documentation (provided by <a href="https://github.com/Rebilly/ReDoc" class="external-link" target="_blank">ReDoc</a>):
+
+![ReDoc](https://fastapi.tiangolo.com/img/index/index-02-redoc-simple.png)
+
+## Example upgrade
+
+Now modify the file `main.py` to receive a body from a `PUT` request.
+
+Declare the body using standard Python types, thanks to Pydantic.
+
+```Python hl_lines="4  9-12  25-27"
+from typing import Union
+
+from fastapi import FastAPI
+from pydantic import BaseModel
+
+app = FastAPI()
+
+
+class Item(BaseModel):
+    name: str
+    price: float
+    is_offer: Union[bool, None] = None
+
+
+@app.get("/")
+def read_root():
+    return {"Hello": "World"}
+
+
+@app.get("/items/{item_id}")
+def read_item(item_id: int, q: Union[str, None] = None):
+    return {"item_id": item_id, "q": q}
+
+
+@app.put("/items/{item_id}")
+def update_item(item_id: int, item: Item):
+    return {"item_name": item.name, "item_id": item_id}
+```
+
+The `fastapi dev` server should reload automatically.
+
+### Interactive API docs upgrade
+
+Now go to <a href="http://127.0.0.1:8000/docs" class="external-link" target="_blank">http://127.0.0.1:8000/docs</a>.
+
+* The interactive API documentation will be automatically updated, including the new body:
+
+![Swagger UI](https://fastapi.tiangolo.com/img/index/index-03-swagger-02.png)
+
+* Click on the button "Try it out", it allows you to fill the parameters and directly interact with the API:
+
+![Swagger UI interaction](https://fastapi.tiangolo.com/img/index/index-04-swagger-03.png)
+
+* Then click on the "Execute" button, the user interface will communicate with your API, send the parameters, get the results and show them on the screen:
+
+![Swagger UI interaction](https://fastapi.tiangolo.com/img/index/index-05-swagger-04.png)
+
+### Alternative API docs upgrade
+
+And now, go to <a href="http://127.0.0.1:8000/redoc" class="external-link" target="_blank">http://127.0.0.1:8000/redoc</a>.
+
+* The alternative documentation will also reflect the new query parameter and body:
+
+![ReDoc](https://fastapi.tiangolo.com/img/index/index-06-redoc-02.png)
+
+### Recap
+
+In summary, you declare **once** the types of parameters, body, etc. as function parameters.
+
+You do that with standard modern Python types.
+
+You don't have to learn a new syntax, the methods or classes of a specific library, etc.
+
+Just standard **Python**.
+
+For example, for an `int`:
+
+```Python
+item_id: int
+```
+
+or for a more complex `Item` model:
+
+```Python
+item: Item
+```
+
+...and with that single declaration you get:
+
+* Editor support, including:
+    * Completion.
+    * Type checks.
+* Validation of data:
+    * Automatic and clear errors when the data is invalid.
+    * Validation even for deeply nested JSON objects.
+* <abbr title="also known as: serialization, parsing, marshalling">Conversion</abbr> of input data: coming from the network to Python data and types. Reading from:
+    * JSON.
+    * Path parameters.
+    * Query parameters.
+    * Cookies.
+    * Headers.
+    * Forms.
+    * Files.
+* <abbr title="also known as: serialization, parsing, marshalling">Conversion</abbr> of output data: converting from Python data and types to network data (as JSON):
+    * Convert Python types (`str`, `int`, `float`, `bool`, `list`, etc).
+    * `datetime` objects.
+    * `UUID` objects.
+    * Database models.
+    * ...and many more.
+* Automatic interactive API documentation, including 2 alternative user interfaces:
+    * Swagger UI.
+    * ReDoc.
+
+---
+
+Coming back to the previous code example, **FastAPI** will:
+
+* Validate that there is an `item_id` in the path for `GET` and `PUT` requests.
+* Validate that the `item_id` is of type `int` for `GET` and `PUT` requests.
+    * If it is not, the client will see a useful, clear error.
+* Check if there is an optional query parameter named `q` (as in `http://127.0.0.1:8000/items/foo?q=somequery`) for `GET` requests.
+    * As the `q` parameter is declared with `= None`, it is optional.
+    * Without the `None` it would be required (as is the body in the case with `PUT`).
+* For `PUT` requests to `/items/{item_id}`, read the body as JSON:
+    * Check that it has a required attribute `name` that should be a `str`.
+    * Check that it has a required attribute `price` that has to be a `float`.
+    * Check that it has an optional attribute `is_offer`, that should be a `bool`, if present.
+    * All this would also work for deeply nested JSON objects.
+* Convert from and to JSON automatically.
+* Document everything with OpenAPI, that can be used by:
+    * Interactive documentation systems.
+    * Automatic client code generation systems, for many languages.
+* Provide 2 interactive documentation web interfaces directly.
+
+---
+
+We just scratched the surface, but you already get the idea of how it all works.
+
+Try changing the line with:
+
+```Python
+    return {"item_name": item.name, "item_id": item_id}
+```
+
+...from:
+
+```Python
+        ... "item_name": item.name ...
+```
+
+...to:
+
+```Python
+        ... "item_price": item.price ...
+```
+
+...and see how your editor will auto-complete the attributes and know their types:
+
+![editor support](https://fastapi.tiangolo.com/img/vscode-completion.png)
+
+For a more complete example including more features, see the <a href="https://fastapi.tiangolo.com/tutorial/">Tutorial - User Guide</a>.
+
+**Spoiler alert**: the tutorial - user guide includes:
+
+* Declaration of **parameters** from other different places as: **headers**, **cookies**, **form fields** and **files**.
+* How to set **validation constraints** as `maximum_length` or `regex`.
+* A very powerful and easy to use **<abbr title="also known as components, resources, providers, services, injectables">Dependency Injection</abbr>** system.
+* Security and authentication, including support for **OAuth2** with **JWT tokens** and **HTTP Basic** auth.
+* More advanced (but equally easy) techniques for declaring **deeply nested JSON models** (thanks to Pydantic).
+* **GraphQL** integration with <a href="https://strawberry.rocks" class="external-link" target="_blank">Strawberry</a> and other libraries.
+* Many extra features (thanks to Starlette) as:
+    * **WebSockets**
+    * extremely easy tests based on HTTPX and `pytest`
+    * **CORS**
+    * **Cookie Sessions**
+    * ...and more.
+
+## Performance
+
+Independent TechEmpower benchmarks show **FastAPI** applications running under Uvicorn as <a href="https://www.techempower.com/benchmarks/#section=test&runid=7464e520-0dc2-473d-bd34-dbdfd7e85911&hw=ph&test=query&l=zijzen-7" class="external-link" target="_blank">one of the fastest Python frameworks available</a>, only below Starlette and Uvicorn themselves (used internally by FastAPI). (*)
+
+To understand more about it, see the section <a href="https://fastapi.tiangolo.com/benchmarks/" class="internal-link" target="_blank">Benchmarks</a>.
+
+## Dependencies
+
+FastAPI depends on Pydantic and Starlette.
+
+### `standard` Dependencies
+
+When you install FastAPI with `pip install "fastapi[standard]"` it comes with the `standard` group of optional dependencies:
+
+Used by Pydantic:
+
+* <a href="https://github.com/JoshData/python-email-validator" target="_blank"><code>email-validator</code></a> - for email validation.
+
+Used by Starlette:
+
+* <a href="https://www.python-httpx.org" target="_blank"><code>httpx</code></a> - Required if you want to use the `TestClient`.
+* <a href="https://jinja.palletsprojects.com" target="_blank"><code>jinja2</code></a> - Required if you want to use the default template configuration.
+* <a href="https://github.com/Kludex/python-multipart" target="_blank"><code>python-multipart</code></a> - Required if you want to support form <abbr title="converting the string that comes from an HTTP request into Python data">"parsing"</abbr>, with `request.form()`.
+
+Used by FastAPI:
+
+* <a href="https://www.uvicorn.org" target="_blank"><code>uvicorn</code></a> - for the server that loads and serves your application. This includes `uvicorn[standard]`, which includes some dependencies (e.g. `uvloop`) needed for high performance serving.
+* `fastapi-cli[standard]` - to provide the `fastapi` command.
+    * This includes `fastapi-cloud-cli`, which allows you to deploy your FastAPI application to <a href="https://fastapicloud.com" class="external-link" target="_blank">FastAPI Cloud</a>.
+
+### Without `standard` Dependencies
+
+If you don't want to include the `standard` optional dependencies, you can install with `pip install fastapi` instead of `pip install "fastapi[standard]"`.
+
+### Without `fastapi-cloud-cli`
+
+If you want to install FastAPI with the standard dependencies but without the `fastapi-cloud-cli`, you can install with `pip install "fastapi[standard-no-fastapi-cloud-cli]"`.
+
+### Additional Optional Dependencies
+
+There are some additional dependencies you might want to install.
+
+Additional optional Pydantic dependencies:
+
+* <a href="https://docs.pydantic.dev/latest/usage/pydantic_settings/" target="_blank"><code>pydantic-settings</code></a> - for settings management.
+* <a href="https://docs.pydantic.dev/latest/usage/types/extra_types/extra_types/" target="_blank"><code>pydantic-extra-types</code></a> - for extra types to be used with Pydantic.
+
+Additional optional FastAPI dependencies:
+
+* <a href="https://github.com/ijl/orjson" target="_blank"><code>orjson</code></a> - Required if you want to use `ORJSONResponse`.
+* <a href="https://github.com/esnme/ultrajson" target="_blank"><code>ujson</code></a> - Required if you want to use `UJSONResponse`.
+
+## License
+
+This project is licensed under the terms of the MIT license.
